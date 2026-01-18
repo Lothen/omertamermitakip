@@ -7,7 +7,7 @@ export default function Admin() {
   const [oyuncular, setOyuncular] = useState([])
 
   // GİRİŞ ŞİFRESİ BURADA (Değiştirebilirsin)
-  const DOGRU_SIFRE = "1234"
+  const DOGRU_SIFRE = "qwex123^Q31d"
 
   function sifreKontrol() {
     if (sifre === DOGRU_SIFRE) {
