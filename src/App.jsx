@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './Home'
-import Admin from './Admin'
+import Home from './AnaSayfa'
+import Admin from './admin'
 import './App.css'
-
+//deneme
 function App() {
   return (
     <BrowserRouter>
