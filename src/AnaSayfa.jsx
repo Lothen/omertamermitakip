@@ -1,15 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
 export default function Home() {
   const [isim, setIsim] = useState('')
   const [mermi, setMermi] = useState('')
   const [koruma, setKoruma] = useState('')
+  const [kayitliIsimler, setKayitliIsimler] = useState([]) // Veritabanındaki isimler
+
+  // Sayfa açılınca mevcut isimleri getir
+  useEffect(() => {
+    mevcutIsimleriGetir()
+  }, [])
+
+  async function mevcutIsimleriGetir() {
+    const { data, error } = await supabase
+      .from('oyuncular')
+      .select('kullanici_adi')
+    
+    if (!error && data) {
+      // Aynı isimden defalarca gelmesin diye benzersiz yapıyoruz
+      const benzersizIsimler = [...new Set(data.map(item => item.kullanici_adi))]
+      setKayitliIsimler(benzersizIsimler)
+    }
+  }
 
   async function veriGonder(e) {
     e.preventDefault()
     
-    // Sayısal değer kontrolü
     if (!isim || !mermi || !koruma) {
       alert('Lütfen tüm alanları doldurun!')
       return
@@ -27,13 +44,15 @@ export default function Home() {
       alert('Hata: ' + error.message)
     } else {
       alert('Kayıt Başarıyla Gönderildi! ✅')
+      // Formu temizle ama isim listesini tekrar güncelle (yeni isim eklenmiş olabilir)
       setIsim('')
       setMermi('')
       setKoruma('')
+      mevcutIsimleriGetir() 
     }
   }
 
-  // Tasarım Stilleri
+  // --- STİLLER ---
   const containerStyle = { maxWidth: '500px', margin: '50px auto', padding: '20px', fontFamily: 'Arial, sans-serif' }
   const labelStyle = { display: 'block', marginBottom: '8px', fontSize: '18px', fontWeight: 'bold', color: '#333' }
   const inputStyle = { width: '100%', padding: '15px', fontSize: '18px', marginBottom: '20px', borderRadius: '8px', border: '2px solid #ccc' }
@@ -46,13 +65,22 @@ export default function Home() {
       <form onSubmit={veriGonder}>
         <div>
           <label style={labelStyle}>Oyuncu Adı</label>
+          {/* HEM YAZILABİLİR HEM SEÇİLEBİLİR ALAN */}
           <input 
             type="text" 
-            placeholder="Örn: Ahmet" 
+            list="oyuncu-listesi"  // Bu ID aşağıdaki datalist ID'si ile aynı olmalı
+            placeholder="İsim yazın veya listeden seçin..." 
             value={isim}
             onChange={(e) => setIsim(e.target.value)}
             style={inputStyle}
+            autoComplete="off"
           />
+          {/* ÖNERİ LİSTESİ */}
+          <datalist id="oyuncu-listesi">
+            {kayitliIsimler.map((kayitliIsim, index) => (
+              <option key={index} value={kayitliIsim} />
+            ))}
+          </datalist>
         </div>
 
         <div>
